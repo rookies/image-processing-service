@@ -1,4 +1,5 @@
 fastapi == 0.70.1
+uvicorn == 0.16.0
 # For file uploads in FastAPI:
 python-multipart == 0.0.5
 # For connection to a PostgreSQL database:
