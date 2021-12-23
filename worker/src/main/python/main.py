@@ -2,6 +2,7 @@
 import logging
 import pika
 from .config import CONFIG
+from .storage import InputFile, OutputFile
 
 logging.basicConfig(level=logging.INFO)
 # ^- TODO: Make this configurable
@@ -10,11 +11,20 @@ logger = logging.getLogger("worker.main")
 
 
 def callback(channel, method, properties, body):
-    channel.basic_ack(method.delivery_tag)
-
     job_id = body.decode("ascii")
-    # TODO: Do the actual processing
     logger.info("Received job %s", job_id)
+
+    # Copy input file content to output file:
+    with InputFile(job_id) as fi:
+        with OutputFile() as fo:
+            fo.copy_from_file(fi.file)
+            logging.info("Created output file %s", fo.uuid)
+    # TODO: Do the actual processing
+    # TODO: Insert output file ID into database
+
+    # Acknowledge the message:
+    channel.basic_ack(method.delivery_tag)
+    logging.info("Acknowledged job %s", job_id)
 
 
 def main():
