@@ -4,8 +4,6 @@ plugins {
   id "ru.vyarus.use-python" version "2.3.0"
 }
 
-def postgresVersion = "14.1-alpine"
-
 task installDependencies(type: PythonTask) {
   module = "pip"
   command = "install -r apiserver/requirements.txt"
@@ -17,9 +15,3 @@ task runApiserver(type: PythonTask) {
   command = "python.main:app --reload"
 }
 runApiserver.dependsOn(installDependencies)
-
-task runPostgres(type: Exec) {
-  commandLine "docker", "run", "--rm", "-i", "-p", "5432:5432",
-    "-e", "POSTGRES_PASSWORD=password",
-    "postgres:${postgresVersion}"
-}

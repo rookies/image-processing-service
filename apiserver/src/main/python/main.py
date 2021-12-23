@@ -7,9 +7,10 @@ from . import crud, models, schemas
 from .enums import ProcessingStatus
 from .database import SessionLocal, engine
 from .storage import store_input_file
+from .queue import MQConnection, get_queue, publish_processing_job
 
 models.Base.metadata.create_all(bind=engine)
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 # ^- TODO: Make this configurable
 
 app = FastAPI()
@@ -25,7 +26,7 @@ def get_db():
 
 
 @app.post("/upload", response_model=schemas.ProcessingJob)
-async def upload_image(file: UploadFile = File(...), db: Session = Depends(get_db)):
+async def upload_image(file: UploadFile = File(...), db: Session = Depends(get_db), mq: MQConnection = Depends(get_queue)):
     """
     Uploads an image and triggers the processing.
     """
@@ -37,7 +38,10 @@ async def upload_image(file: UploadFile = File(...), db: Session = Depends(get_d
 
     # Store image on disk:
     await store_input_file(job.uuid, file)
-    # TODO: Trigger processing via message queue
+
+    # Trigger processing via message queue:
+    publish_processing_job(mq, job.uuid)
+
     return job
 
 

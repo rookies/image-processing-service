@@ -1,0 +1,20 @@
+version: "3.9"
+services:
+  postgres:
+    image: postgres:14.1-alpine
+    environment:
+      POSTGRES_USER: ips
+      POSTGRES_PASSWORD: ips
+    volumes:
+      - postgresql:/var/lib/postgresql
+      - postgresql_data:/var/lib/postgresql/data
+    network_mode: host
+  rabbitmq:
+    image: rabbitmq:3.9.11-alpine
+    volumes:
+      - rabbitmq:/var/lib/rabbitmq
+    network_mode: host
+volumes:
+  postgresql: {}
+  postgresql_data: {}
+  rabbitmq: {}
