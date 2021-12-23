@@ -4,7 +4,7 @@ import logging
 import pika
 from .config import CONFIG
 
-logger = logging.getLogger("apiserver.queue")
+logger = logging.getLogger("ips.queue")
 MQConnection = pika.BlockingConnection
 
 
