@@ -1,14 +1,19 @@
 #!/usr/bin/env python3
 import uuid
+import logging
 from fastapi import FastAPI, File, UploadFile, Depends, HTTPException
 from sqlalchemy.orm import Session
-from .enums import ProcessingStatus
 from . import crud, models, schemas
+from .enums import ProcessingStatus
 from .database import SessionLocal, engine
+from .storage import store_input_file
 
 models.Base.metadata.create_all(bind=engine)
+logging.basicConfig(level=logging.DEBUG)
+# ^- TODO: Make this configurable
 
 app = FastAPI()
+logger = logging.getLogger("apiserver.main")
 
 
 def get_db():
@@ -24,9 +29,16 @@ async def upload_image(file: UploadFile = File(...), db: Session = Depends(get_d
     """
     Uploads an image and triggers the processing.
     """
-    # TODO: Store image
+    logger.info("File named '%s' (%s) uploaded", file.filename, file.content_type)
+
+    # Create job in the database:
+    job = crud.create_processing_job(db, schemas.ProcessingJobCreate())
+    logger.info("Created database entry with UUID %s", job.uuid)
+
+    # Store image on disk:
+    await store_input_file(job.uuid, file)
     # TODO: Trigger processing via message queue
-    return crud.create_processing_job(db, schemas.ProcessingJobCreate())
+    return job
 
 
 @app.get("/jobs/{job_id}/status", response_model=schemas.ProcessingJob)

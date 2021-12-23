@@ -4,3 +4,5 @@ python-multipart == 0.0.5
 # For connection to a PostgreSQL database:
 SQLAlchemy == 1.4.29
 psycopg2-binary == 2.9.2
+# For reading configuration from environment variables:
+environ-config == 21.2.0
