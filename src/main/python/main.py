@@ -19,7 +19,11 @@ logger = logging.getLogger("ips.main")
 
 
 @app.post("/upload", response_model=schemas.ProcessingJob)
-async def upload_image(file: UploadFile = File(...), db: Session = Depends(get_database), mq: MQConnection = Depends(get_queue)):
+async def upload_image(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_database),
+    mq: MQConnection = Depends(get_queue),
+):
     """
     Uploads an image and triggers the processing.
     """

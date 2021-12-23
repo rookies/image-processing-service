@@ -10,7 +10,11 @@ def get_processing_jobs(db: Session):
 
 
 def get_processing_job(db: Session, job_id: uuid.UUID):
-    return db.query(models.ProcessingJob).filter(models.ProcessingJob.uuid == job_id).first()
+    return (
+        db.query(models.ProcessingJob)
+        .filter(models.ProcessingJob.uuid == job_id)
+        .first()
+    )
 
 
 def create_processing_job(db: Session, job: schemas.ProcessingJobCreate):

@@ -14,4 +14,5 @@ class Config:
     # File storage path:
     storage_path = environ.var("/tmp/ips_storage")
 
+
 CONFIG = Config.from_environ(os.environ)
