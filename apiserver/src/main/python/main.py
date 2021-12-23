@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import uuid
-from fastapi import FastAPI, File, UploadFile, Depends
+from fastapi import FastAPI, File, UploadFile, Depends, HTTPException
 from sqlalchemy.orm import Session
 from .enums import ProcessingStatus
 from . import crud, models, schemas
@@ -24,28 +24,38 @@ async def upload_image(file: UploadFile = File(...), db: Session = Depends(get_d
     """
     Uploads an image and triggers the processing.
     """
-    # TODO
+    # TODO: Store image
+    # TODO: Trigger processing via message queue
     return crud.create_processing_job(db, schemas.ProcessingJobCreate())
 
 
-@app.get("/jobs/{job_id}/status")
-async def get_job_status(job_id: uuid.UUID) -> dict:
+@app.get("/jobs/{job_id}/status", response_model=schemas.ProcessingJob)
+async def get_job_status(job_id: uuid.UUID, db: Session = Depends(get_db)):
     """
     Returns the processing status of the job with the given ID.
     """
-    # TODO
-    return {
-        "job_id": job_id,
-        "status": ProcessingStatus.WAITING,
-    }
+    job = crud.get_processing_job(db, job_id)
+
+    if job is None:
+        raise HTTPException(status_code=404, detail="Job not found")
+
+    return job
 
 
 @app.get("/jobs/{job_id}/download")
-async def download_result(job_id: uuid.UUID) -> dict:
+async def download_result(job_id: uuid.UUID, db: Session = Depends(get_db)):
     """
     Provides the processed image for download.
     """
-    # TODO
+    job = crud.get_processing_job(db, job_id)
+
+    if job is None:
+        raise HTTPException(status_code=404, detail="Job not found")
+
+    if job.status != ProcessingStatus.FINISHED:
+        raise HTTPException(status_code=202, detail="Job not finished")
+
+    # TODO: Return processed image
     return {}
 
 
