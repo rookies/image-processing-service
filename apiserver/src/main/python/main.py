@@ -1,29 +1,31 @@
 #!/usr/bin/env python3
 import uuid
-import enum
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, UploadFile, Depends
+from sqlalchemy.orm import Session
+from .enums import ProcessingStatus
+from . import crud, models, schemas
+from .database import SessionLocal, engine
+
+models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
 
-class ProcessingStatus(str, enum.Enum):
-    WAITING = "waiting"
-    PROCESSING = "processing"
-    FINISHED = "finished"
-    FAILED = "failed"
-    ABORTED = "aborted"
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
-@app.post("/upload")
-async def upload_image(file: UploadFile = File(...)) -> dict:
+@app.post("/upload", response_model=schemas.ProcessingJob)
+async def upload_image(file: UploadFile = File(...), db: Session = Depends(get_db)):
     """
     Uploads an image and triggers the processing.
     """
     # TODO
-    return {
-        "filename": file.filename,
-        "job_id": uuid.uuid4(),
-    }
+    return crud.create_processing_job(db, schemas.ProcessingJobCreate())
 
 
 @app.get("/jobs/{job_id}/status")
@@ -45,3 +47,11 @@ async def download_result(job_id: uuid.UUID) -> dict:
     """
     # TODO
     return {}
+
+
+@app.get("/jobs")
+async def list_jobs(db: Session = Depends(get_db)):
+    """
+    Lists all jobs.
+    """
+    return crud.get_processing_jobs(db)

@@ -1,3 +1,6 @@
 fastapi == 0.70.1
 # For file uploads in FastAPI:
 python-multipart == 0.0.5
+# For connection to a PostgreSQL database:
+SQLAlchemy == 1.4.29
+psycopg2-binary == 2.9.2
