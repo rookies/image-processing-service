@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 import uuid
 import logging
+from typing import List
 from fastapi import FastAPI, File, UploadFile, Depends, HTTPException
 from sqlalchemy.orm import Session
 from . import crud, models, schemas
 from .enums import ProcessingStatus
-from .database import SessionLocal, engine
+from .database import get_database, engine
 from .storage import store_input_file
 from .queue import MQConnection, get_queue, publish_processing_job
 
@@ -14,19 +15,11 @@ logging.basicConfig(level=logging.INFO)
 # ^- TODO: Make this configurable
 
 app = FastAPI()
-logger = logging.getLogger("apiserver.main")
-
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+logger = logging.getLogger("ips.main")
 
 
 @app.post("/upload", response_model=schemas.ProcessingJob)
-async def upload_image(file: UploadFile = File(...), db: Session = Depends(get_db), mq: MQConnection = Depends(get_queue)):
+async def upload_image(file: UploadFile = File(...), db: Session = Depends(get_database), mq: MQConnection = Depends(get_queue)):
     """
     Uploads an image and triggers the processing.
     """
@@ -46,7 +39,7 @@ async def upload_image(file: UploadFile = File(...), db: Session = Depends(get_d
 
 
 @app.get("/jobs/{job_id}/status", response_model=schemas.ProcessingJob)
-async def get_job_status(job_id: uuid.UUID, db: Session = Depends(get_db)):
+async def get_job_status(job_id: uuid.UUID, db: Session = Depends(get_database)):
     """
     Returns the processing status of the job with the given ID.
     """
@@ -59,7 +52,7 @@ async def get_job_status(job_id: uuid.UUID, db: Session = Depends(get_db)):
 
 
 @app.get("/jobs/{job_id}/download")
-async def download_result(job_id: uuid.UUID, db: Session = Depends(get_db)):
+async def download_result(job_id: uuid.UUID, db: Session = Depends(get_database)):
     """
     Provides the processed image for download.
     """
@@ -75,8 +68,8 @@ async def download_result(job_id: uuid.UUID, db: Session = Depends(get_db)):
     return {}
 
 
-@app.get("/jobs")
-async def list_jobs(db: Session = Depends(get_db)):
+@app.get("/jobs", response_model=List[schemas.ProcessingJob])
+async def list_jobs(db: Session = Depends(get_database)):
     """
     Lists all jobs.
     """

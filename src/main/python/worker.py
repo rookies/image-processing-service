@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 import logging
 import pika
+from . import crud
 from .config import CONFIG
 from .storage import InputFile, OutputFile
+from .database import get_database
 
 logging.basicConfig(level=logging.INFO)
 # ^- TODO: Make this configurable
 
-logger = logging.getLogger("worker.main")
+logger = logging.getLogger("ips.worker")
 
 
 def callback(channel, method, properties, body):
@@ -18,9 +20,14 @@ def callback(channel, method, properties, body):
     with InputFile(job_id) as fi:
         with OutputFile() as fo:
             fo.copy_from_file(fi.file)
-            logging.info("Created output file %s", fo.uuid)
+
+            output_uuid = fo.uuid
+            logging.info("Created output file %s", output_uuid)
     # TODO: Do the actual processing
-    # TODO: Insert output file ID into database
+
+    # Update database entry:
+    db = next(get_database())
+    crud.finish_processing_job(db, job_id, output_uuid)
 
     # Acknowledge the message:
     channel.basic_ack(method.delivery_tag)

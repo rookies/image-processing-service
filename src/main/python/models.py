@@ -51,3 +51,4 @@ class ProcessingJob(Base):
 
     uuid = Column(GUID, primary_key=True, index=True, default=uuid.uuid4)
     status = Column(Enum(ProcessingStatus), default=ProcessingStatus.WAITING)
+    output_uuid = Column(GUID, nullable=True)
