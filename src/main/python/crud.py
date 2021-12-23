@@ -26,7 +26,9 @@ def create_processing_job(db: Session, job: schemas.ProcessingJobCreate):
     return db_job
 
 
-def update_processing_job_status(db: Session, job_id: uuid.UUID, status: ProcessingStatus):
+def update_processing_job_status(
+    db: Session, job_id: uuid.UUID, status: ProcessingStatus
+):
     job = get_processing_job(db, job_id)
     if job is None:
         raise ValueError("No job with UUID %s" % job_id)

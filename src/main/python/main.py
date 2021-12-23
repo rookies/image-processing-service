@@ -11,8 +11,7 @@ from .storage import store_input_file
 from .queue import MQConnection, get_queue, publish_processing_job
 
 models.Base.metadata.create_all(bind=engine)
-logging.basicConfig(level=logging.INFO)
-# ^- TODO: Make this configurable
+# ^- TODO: Do this using Alembic
 
 app = FastAPI(
     title="Image Processing Service",

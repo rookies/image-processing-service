@@ -7,9 +7,6 @@ from .storage import InputFile, OutputFile
 from .database import get_database
 from .enums import ProcessingStatus
 
-logging.basicConfig(level=logging.INFO)
-# ^- TODO: Make this configurable
-
 logger = logging.getLogger("ips.worker")
 
 
