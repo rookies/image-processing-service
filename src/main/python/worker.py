@@ -5,6 +5,7 @@ from . import crud
 from .config import CONFIG
 from .storage import InputFile, OutputFile
 from .database import get_database
+from .enums import ProcessingStatus
 
 logging.basicConfig(level=logging.INFO)
 # ^- TODO: Make this configurable
@@ -16,6 +17,12 @@ def callback(channel, method, properties, body):
     job_id = body.decode("ascii")
     logger.info("Received job %s", job_id)
 
+    # Get database connection:
+    db = next(get_database())
+
+    # Set status to PROCESSING:
+    crud.update_processing_job_status(db, job_id, ProcessingStatus.PROCESSING)
+
     # Copy input file content to output file:
     with InputFile(job_id) as fi:
         with OutputFile() as fo:
@@ -25,13 +32,12 @@ def callback(channel, method, properties, body):
             logging.info("Created output file %s", output_uuid)
     # TODO: Do the actual processing
 
-    # Update database entry:
-    db = next(get_database())
+    # Set status to FINISHED and add output UUID:
     crud.finish_processing_job(db, job_id, output_uuid)
 
-    # Acknowledge the message:
+    # Acknowledge the job:
     channel.basic_ack(method.delivery_tag)
-    logging.info("Acknowledged job %s", job_id)
+    logging.info("Executed and acknowledged job %s", job_id)
 
 
 def main():

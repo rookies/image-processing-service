@@ -26,8 +26,20 @@ def create_processing_job(db: Session, job: schemas.ProcessingJobCreate):
     return db_job
 
 
+def update_processing_job_status(db: Session, job_id: uuid.UUID, status: ProcessingStatus):
+    job = get_processing_job(db, job_id)
+    if job is None:
+        raise ValueError("No job with UUID %s" % job_id)
+
+    job.status = status
+    db.add(job)
+    db.commit()
+    db.refresh(job)
+
+    return job
+
+
 def finish_processing_job(db: Session, job_id: uuid.UUID, output_id: uuid.UUID):
-    print(type(db))
     job = get_processing_job(db, job_id)
     if job is None:
         raise ValueError("No job with UUID %s" % job_id)
@@ -36,3 +48,6 @@ def finish_processing_job(db: Session, job_id: uuid.UUID, output_id: uuid.UUID):
     job.status = ProcessingStatus.FINISHED
     db.add(job)
     db.commit()
+    db.refresh(job)
+
+    return job

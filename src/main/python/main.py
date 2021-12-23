@@ -14,7 +14,10 @@ models.Base.metadata.create_all(bind=engine)
 logging.basicConfig(level=logging.INFO)
 # ^- TODO: Make this configurable
 
-app = FastAPI()
+app = FastAPI(
+    title="Image Processing Service",
+    version="0.1.0",
+)
 logger = logging.getLogger("ips.main")
 
 
