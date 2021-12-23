@@ -29,7 +29,7 @@ def callback(channel, method, properties, body):
             fo.copy_from_file(fi.file)
 
             output_uuid = fo.uuid
-            logging.info("Created output file %s", output_uuid)
+            logger.info("Created output file %s", output_uuid)
     # TODO: Do the actual processing
 
     # Set status to FINISHED and add output UUID:
@@ -37,7 +37,7 @@ def callback(channel, method, properties, body):
 
     # Acknowledge the job:
     channel.basic_ack(method.delivery_tag)
-    logging.info("Executed and acknowledged job %s", job_id)
+    logger.info("Executed and acknowledged job %s", job_id)
 
 
 def main():
