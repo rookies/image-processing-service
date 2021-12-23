@@ -1,4 +1,0 @@
-# For reading configuration from environment variables:
-environ-config == 21.2.0
-# For connection to RabbitMQ:
-pika == 1.2.0

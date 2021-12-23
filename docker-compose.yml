@@ -3,14 +3,15 @@ services:
   apiserver:
     image: alpine:3.15.0
     environment:
-      START_COMMAND: uvicorn python.main:app --reload
+      START_COMMAND: uvicorn app.main:app --reload
       UVICORN_HOST: 0.0.0.0
-      IPS_API_DB_URL: postgresql://ips:ips@postgres/ips
-      IPS_API_MQ_URL: amqp://guest:guest@rabbitmq/%2F
-      IPS_API_STORAGE_PATH: /data
+      IPS_DB_URL: postgresql://ips:ips@postgres/ips
+      IPS_MQ_URL: amqp://guest:guest@rabbitmq/%2F
+      IPS_STORAGE_PATH: /data
     volumes:
       - files:/data
-      - ./apiserver:/app:ro
+      - ./src/main/python:/app:ro
+      - ./requirements.txt:/requirements.txt:ro
       - ./entrypoint.sh:/entrypoint.sh:ro
     ports:
       - "8000:8000"
@@ -21,12 +22,13 @@ services:
   worker:
     image: alpine:3.15.0
     environment:
-      START_COMMAND: python.main
-      IPS_WORKER_MQ_URL: amqp://guest:guest@rabbitmq/%2F
-      IPS_WORKER_STORAGE_PATH: /data
+      START_COMMAND: app.worker
+      IPS_MQ_URL: amqp://guest:guest@rabbitmq/%2F
+      IPS_STORAGE_PATH: /data
     volumes:
       - files:/data
-      - ./worker:/app:ro
+      - ./src/main/python:/app:ro
+      - ./requirements.txt:/requirements.txt:ro
       - ./entrypoint.sh:/entrypoint.sh:ro
     entrypoint: /entrypoint.sh
     depends_on:

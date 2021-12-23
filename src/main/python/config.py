@@ -3,8 +3,10 @@ import os
 import environ
 
 
-@environ.config(prefix="IPS_WORKER")
+@environ.config(prefix="IPS")
 class Config:
+    # Database URL:
+    db_url = environ.var("postgresql://ips:ips@127.0.0.1/ips")
     # Message queue URL:
     mq_url = environ.var("amqp://guest:guest@127.0.0.1/%2F")
     # Message queue queue:
