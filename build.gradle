@@ -6,7 +6,7 @@ plugins {
 
 task installDependencies(type: PythonTask) {
   module = "pip"
-  command = "install -r apiserver/requirements.txt"
+  command = "install -r apiserver/requirements.txt -r worker/requirements.txt"
 }
 
 task runApiserver(type: PythonTask) {
@@ -15,3 +15,9 @@ task runApiserver(type: PythonTask) {
   command = "python.main:app --reload"
 }
 runApiserver.dependsOn(installDependencies)
+
+task runWorker(type: PythonTask) {
+  module = "python.main"
+  workDir = "worker/src/main"
+}
+runWorker.dependsOn(installDependencies)
