@@ -1,0 +1,17 @@
+#!/usr/bin/env groovy
+
+plugins {
+  id "ru.vyarus.use-python" version "2.3.0"
+}
+
+task installDependencies(type: PythonTask) {
+  module = "pip"
+  command = "install -r apiserver/requirements.txt"
+}
+
+task runApiserver(type: PythonTask) {
+  module = "uvicorn"
+  workDir = "apiserver/src/main/python"
+  command = "main:app --reload"
+}
+runApiserver.dependsOn(installDependencies)
