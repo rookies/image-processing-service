@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+"""
+This is the main file of the Image Processing Service worker processes.
+"""
 import logging
 import pika
 from . import crud
@@ -10,7 +13,10 @@ from .enums import ProcessingStatus
 logger = logging.getLogger("ips.worker")
 
 
-def callback(channel, method, properties, body):
+def callback(channel, method, _properties, body):
+    """
+    This function is called each time a job is received via the message queue.
+    """
     job_id = body.decode("ascii")
     logger.info("Received job %s", job_id)
 
@@ -38,6 +44,9 @@ def callback(channel, method, properties, body):
 
 
 def main():
+    """
+    This is the main entrypoint.
+    """
     logger.info("Connecting to message queue")
     connection = pika.BlockingConnection(pika.URLParameters(CONFIG.mq_url))
 

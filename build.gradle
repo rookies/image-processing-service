@@ -18,3 +18,4 @@ task lint(type: PythonTask) {
   module "pylint"
   command "src/main/python/ips"
 }
+lint.dependsOn(installDependencies)

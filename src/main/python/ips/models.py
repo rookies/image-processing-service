@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
+"""
+This file contains all database models as well as custom database column types.
+"""
 import uuid
-from sqlalchemy import Column, Integer, Enum, Text
+from sqlalchemy import Column, Enum, Text
 from sqlalchemy.types import TypeDecorator, CHAR
 from sqlalchemy.dialects.postgresql import UUID
 from .database import Base
@@ -17,37 +20,44 @@ class GUID(TypeDecorator):
     See https://docs.sqlalchemy.org/en/14/core/custom_types.html
     """
 
+    # pylint: disable=abstract-method
+
     impl = CHAR
     cache_ok = True
 
     def load_dialect_impl(self, dialect):
         if dialect.name == "postgresql":
             return dialect.type_descriptor(UUID())
-        else:
-            return dialect.type_descriptor(CHAR(32))
+
+        return dialect.type_descriptor(CHAR(32))
 
     def process_bind_param(self, value, dialect):
         if value is None:
             return value
-        elif dialect.name == "postgresql":
+        if dialect.name == "postgresql":
             return str(value)
-        else:
-            if not isinstance(value, uuid.UUID):
-                return "%.32x" % uuid.UUID(value).int
-            else:
-                # hexstring
-                return "%.32x" % value.int
+        if not isinstance(value, uuid.UUID):
+            return f"{uuid.UUID(value).int:032x}"
+
+        return f"{value.int:032x}"
 
     def process_result_value(self, value, dialect):
         if value is None:
             return value
-        else:
-            if not isinstance(value, uuid.UUID):
-                value = uuid.UUID(value)
-            return value
+
+        if not isinstance(value, uuid.UUID):
+            value = uuid.UUID(value)
+        return value
 
 
 class ProcessingJob(Base):
+    """
+    An image processing job. It is identified by a UUID generated at creation, has
+    a processing status, the filename and content-type of the uploaded image, and
+    (once the processing is finished) the UUID of the generated output file.
+    """
+
+    # pylint: disable=too-few-public-methods
     __tablename__ = "processing_jobs"
 
     uuid = Column(GUID, primary_key=True, index=True, default=uuid.uuid4)

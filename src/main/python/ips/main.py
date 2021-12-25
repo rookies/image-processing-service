@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
+"""
+This is the main file of the Image Processing Service API Server.
+"""
 import uuid
 import logging
 from typing import List
 from fastapi import FastAPI, File, UploadFile, Depends, HTTPException
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
-from . import crud, models, schemas
+from . import crud, schemas
 from .enums import ProcessingStatus
-from .database import get_database, engine
+from .database import get_database
 from .storage import store_input_file, get_output_file_path
 from .queue import MQConnection, get_queue, publish_processing_job
 

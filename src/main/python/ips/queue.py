@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+"""
+This file provides access to the message queue.
+"""
 import uuid
 import logging
 import pika
@@ -9,6 +12,9 @@ MQConnection = pika.BlockingConnection
 
 
 def get_queue():
+    """
+    Provides connections to the message queue.
+    """
     mq = pika.BlockingConnection(pika.URLParameters(CONFIG.mq_url))
     try:
         yield mq
@@ -17,6 +23,9 @@ def get_queue():
 
 
 def publish_processing_job(mq: MQConnection, job_id: uuid.UUID):
+    """
+    Publishes a processing job to the given message queue.
+    """
     channel = mq.channel()
     channel.queue_declare(queue=CONFIG.mq_queue)
     channel.basic_publish(
