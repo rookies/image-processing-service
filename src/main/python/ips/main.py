@@ -10,9 +10,6 @@ from .database import get_database, engine
 from .storage import store_input_file
 from .queue import MQConnection, get_queue, publish_processing_job
 
-models.Base.metadata.create_all(bind=engine)
-# ^- TODO: Do this using Alembic
-
 app = FastAPI(
     title="Image Processing Service",
     version="0.1.0",

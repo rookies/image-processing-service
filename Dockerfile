@@ -1,7 +1,8 @@
 FROM alpine:3.15.0
 
-COPY src/main/python/ /app
-COPY requirements.txt /app/requirements.txt
+COPY src /app/src
+COPY alembic /app/alembic
+COPY alembic.ini requirements.txt /app/
 RUN apk add --no-cache \
     python3 \
     py3-pip \
