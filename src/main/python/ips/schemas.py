@@ -3,8 +3,10 @@
 This file contains the schemas used for API requests and responses.
 """
 import uuid
-from pydantic import BaseModel
+from pydantic import BaseModel  # pylint: disable=no-name-in-module
 from .enums import ProcessingStatus
+
+# pylint: disable=too-few-public-methods
 
 
 class ProcessingJobBase(BaseModel):
