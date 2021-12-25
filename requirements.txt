@@ -11,3 +11,5 @@ environ-config == 21.2.0
 pika == 1.2.0
 # For database migrations:
 alembic == 1.7.5
+# For image processing:
+Pillow == 8.4.0

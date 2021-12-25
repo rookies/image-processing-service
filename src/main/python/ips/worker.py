@@ -4,9 +4,10 @@ This is the main file of the Image Processing Service worker processes.
 """
 import logging
 import pika
+from PIL import Image, ImageFilter
 from . import crud
 from .config import CONFIG
-from .storage import InputFile, OutputFile
+from .storage import create_output_file, get_input_file_path
 from .database import get_database
 from .enums import ProcessingStatus
 
@@ -26,17 +27,24 @@ def callback(channel, method, _properties, body):
     # Set status to PROCESSING:
     crud.update_processing_job_status(db, job_id, ProcessingStatus.PROCESSING)
 
-    # Copy input file content to output file:
-    with InputFile(job_id) as fi:
-        with OutputFile() as fo:
-            fo.copy_from_file(fi.file)
+    # Process the image:
+    try:
+        with Image.open(get_input_file_path(job_id)) as img:
+            logger.info(
+                "Opened file %s with format %s, size %s", job_id, img.format, img.size
+            )
+            img_out = img.filter(ImageFilter.BLUR)
 
-            output_uuid = fo.uuid
+            output_uuid, output_path = create_output_file()
+            img_out.save(output_path, img.format)
             logger.info("Created output file %s", output_uuid)
-    # TODO: Do the actual processing
-
-    # Set status to FINISHED and add output UUID:
-    crud.finish_processing_job(db, job_id, output_uuid)
+    except OSError as exc:
+        # Set status to FAILED:
+        logger.warning("Processing of job %s failed: %s", job_id, exc)
+        crud.update_processing_job_status(db, job_id, ProcessingStatus.FAILED)
+    else:
+        # Set status to FINISHED and add output UUID:
+        crud.finish_processing_job(db, job_id, output_uuid)
 
     # Acknowledge the job:
     channel.basic_ack(method.delivery_tag)
