@@ -7,6 +7,7 @@ plugins {
 
 python {
   pip "pylint:2.12.2"
+  pip "black:21.12b0"
 }
 
 task installDependencies(type: PythonTask) {
@@ -14,8 +15,22 @@ task installDependencies(type: PythonTask) {
   command = "install -r requirements.txt"
 }
 
-task lint(type: PythonTask) {
+task pylint(type: PythonTask) {
   module "pylint"
   command "src/main/python/ips"
 }
-lint.dependsOn(installDependencies)
+pylint.dependsOn(installDependencies)
+
+task blackCheck(type: PythonTask) {
+  module "black"
+  command "--check src alembic"
+}
+
+task black(type: PythonTask) {
+  module "black"
+  command "src alembic"
+}
+
+task lint
+lint.dependsOn(pylint)
+lint.dependsOn(blackCheck)
