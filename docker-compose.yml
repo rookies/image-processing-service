@@ -1,3 +1,7 @@
+# This file is only intended for development purposes. It mounts the source code
+# directory into the containers and allows live reload.
+---
+
 version: "3.9"
 services:
   apiserver:
@@ -54,7 +58,6 @@ services:
       - postgresql_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
-      # ^- NOTE: Don't use this in production!
   rabbitmq:
     image: rabbitmq:3.9.11-alpine
     volumes:

@@ -18,7 +18,10 @@ def get_processing_job(db: Session, job_id: uuid.UUID):
 
 
 def create_processing_job(db: Session, job: schemas.ProcessingJobCreate):
-    db_job = models.ProcessingJob()
+    db_job = models.ProcessingJob(
+        original_filename=job.original_filename,
+        original_content_type=job.original_content_type,
+    )
     db.add(db_job)
     db.commit()
     db.refresh(db_job)

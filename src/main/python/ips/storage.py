@@ -27,6 +27,10 @@ async def store_input_file(file_id: uuid.UUID, input_file: UploadFile) -> None:
     logger.info("Wrote file content to %s", path)
 
 
+def get_output_file_path(file_id: uuid.UUID) -> str:
+    return os.path.join(OUTPUT_STORAGE_PATH, str(file_id))
+
+
 class File(ABC):
     @abstractmethod
     def __enter__(self):

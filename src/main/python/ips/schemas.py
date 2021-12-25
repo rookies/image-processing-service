@@ -5,7 +5,8 @@ from .enums import ProcessingStatus
 
 
 class ProcessingJobBase(BaseModel):
-    pass
+    original_filename: str
+    original_content_type: str
 
 
 class ProcessingJobCreate(ProcessingJobBase):

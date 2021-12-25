@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import uuid
-from sqlalchemy import Column, Integer, Enum
+from sqlalchemy import Column, Integer, Enum, Text
 from sqlalchemy.types import TypeDecorator, CHAR
 from sqlalchemy.dialects.postgresql import UUID
 from .database import Base
@@ -55,3 +55,5 @@ class ProcessingJob(Base):
         Enum(ProcessingStatus), default=ProcessingStatus.WAITING, nullable=False
     )
     output_uuid = Column(GUID, nullable=True)
+    original_filename = Column(Text, server_default="", nullable=False)
+    original_content_type = Column(Text, server_default="", nullable=False)
