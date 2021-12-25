@@ -51,5 +51,7 @@ class ProcessingJob(Base):
     __tablename__ = "processing_jobs"
 
     uuid = Column(GUID, primary_key=True, index=True, default=uuid.uuid4)
-    status = Column(Enum(ProcessingStatus), default=ProcessingStatus.WAITING, nullable=False)
+    status = Column(
+        Enum(ProcessingStatus), default=ProcessingStatus.WAITING, nullable=False
+    )
     output_uuid = Column(GUID, nullable=True)
