@@ -1,23 +1,20 @@
 #!/usr/bin/env groovy
 
 plugins {
+  id "base"
   id "ru.vyarus.use-python" version "2.3.0"
+}
+
+python {
+  pip "pylint:2.12.2"
 }
 
 task installDependencies(type: PythonTask) {
   module = "pip"
-  command = "install -r apiserver/requirements.txt -r worker/requirements.txt"
+  command = "install -r requirements.txt"
 }
 
-task runApiserver(type: PythonTask) {
-  module = "uvicorn"
-  workDir = "apiserver/src/main"
-  command = "python.main:app --reload"
+task lint(type: PythonTask) {
+  module "pylint"
+  command "src/main/python/ips"
 }
-runApiserver.dependsOn(installDependencies)
-
-task runWorker(type: PythonTask) {
-  module = "python.main"
-  workDir = "worker/src/main"
-}
-runWorker.dependsOn(installDependencies)
