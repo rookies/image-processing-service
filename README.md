@@ -27,3 +27,7 @@ worker processes therefore makes sense.
 * **[Pika](https://pika.readthedocs.io/en/stable/)** to talk to RabbitMQ
 * **Docker** for all services
 * **docker-compose** to run the services for development
+
+## Notes
+* https://andrewlock.net/deploying-asp-net-core-applications-to-kubernetes-part-7-running-database-migrations/
+* https://minikube.sigs.k8s.io/docs/handbook/registry/
